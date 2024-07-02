@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emrik Image Movement</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+      img {
+        position: absolute;
+        transition: top 0.1s;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="N.jpg" alt="Moving Image" id="movingImage" />
+    <script>
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", function (event) {
+          // Beta verdien (rotasjon rundt x-aksen)
+          var beta = event.beta;
+
+          // Finn bildet
+          var img = document.getElementById("movingImage");
+
+          // Beregn ny toppposisjon
+          var newTop = window.innerHeight / 2 + beta * 2;
+
+          // Begrens posisjonen innenfor vinduets høyde
+          newTop = Math.max(
+            0,
+            Math.min(window.innerHeight - img.height, newTop)
+          );
+
+          // Oppdater toppposisjonen til bildet
+          img.style.top = newTop + "px";
+        });
+      } else {
+        alert("Enheten din støtter ikke gyroskopfunksjoner.");
+      }
+    </script>
+  </body>
+</html>
