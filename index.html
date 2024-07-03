@@ -84,16 +84,16 @@
       function goFullscreen() {
         const elem = document.documentElement;
         if (elem.requestFullscreen) {
-          elem.requestFullscreen();
+          elem.requestFullscreen().catch((err) => console.error(err));
         } else if (elem.mozRequestFullScreen) {
           // Firefox
-          elem.mozRequestFullScreen();
+          elem.mozRequestFullScreen().catch((err) => console.error(err));
         } else if (elem.webkitRequestFullscreen) {
           // Chrome, Safari and Opera
-          elem.webkitRequestFullscreen();
+          elem.webkitRequestFullscreen().catch((err) => console.error(err));
         } else if (elem.msRequestFullscreen) {
           // IE/Edge
-          elem.msRequestFullscreen();
+          elem.msRequestFullscreen().catch((err) => console.error(err));
         }
       }
 
