@@ -99,33 +99,30 @@
 
       // Legg til hendelse for å skjule fullskjermknappen når vi går i fullskjerm
       document.addEventListener("fullscreenchange", (event) => {
-        if (document.fullscreenElement) {
-          document.getElementById("fullscreenButton").style.display = "none";
-        } else {
-          document.getElementById("fullscreenButton").style.display = "block";
-        }
+        toggleFullscreenButton();
       });
       document.addEventListener("webkitfullscreenchange", (event) => {
-        if (document.webkitFullscreenElement) {
-          document.getElementById("fullscreenButton").style.display = "none";
-        } else {
-          document.getElementById("fullscreenButton").style.display = "block";
-        }
+        toggleFullscreenButton();
       });
       document.addEventListener("mozfullscreenchange", (event) => {
-        if (document.mozFullScreenElement) {
-          document.getElementById("fullscreenButton").style.display = "none";
-        } else {
-          document.getElementById("fullscreenButton").style.display = "block";
-        }
+        toggleFullscreenButton();
       });
       document.addEventListener("msfullscreenchange", (event) => {
-        if (document.msFullscreenElement) {
+        toggleFullscreenButton();
+      });
+
+      function toggleFullscreenButton() {
+        if (
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement
+        ) {
           document.getElementById("fullscreenButton").style.display = "none";
         } else {
           document.getElementById("fullscreenButton").style.display = "block";
         }
-      });
+      }
     </script>
   </body>
 </html>
