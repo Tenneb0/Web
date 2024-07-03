@@ -20,16 +20,9 @@
         position: absolute;
         transition: top 0.1s;
       }
-      #permissionButton,
-      #fullscreenButton {
+      button {
         position: fixed;
         top: 20px;
-        padding: 10px 20px;
-        font-size: 16px;
-        z-index: 10;
-      }
-      #fullscreenButton {
-        top: 70px;
       }
 
       .app {
@@ -41,9 +34,8 @@
   </head>
   <body>
     <button onclick="onClick()">Be om tillatelse</button>
-    <button id="fullscreenButton" onclick="goFullscreen()">Fullskjerm</button>
-    <img src="app.png" alt="app" class="app" />
     <div id="movingBox"></div>
+    <img src="app.png" alt="app" class="app" />
     <script>
       function onClick() {
         if (typeof DeviceMotionEvent.requestPermission === "function") {
@@ -80,48 +72,6 @@
 
         // Oppdater topp posisjon til firkanten
         box.style.top = newTop + "px";
-      }
-      function goFullscreen() {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen().catch((err) => console.error(err));
-        } else if (elem.mozRequestFullScreen) {
-          // Firefox
-          elem.mozRequestFullScreen().catch((err) => console.error(err));
-        } else if (elem.webkitRequestFullscreen) {
-          // Chrome, Safari and Opera
-          elem.webkitRequestFullscreen().catch((err) => console.error(err));
-        } else if (elem.msRequestFullscreen) {
-          // IE/Edge
-          elem.msRequestFullscreen().catch((err) => console.error(err));
-        }
-      }
-
-      // Legg til hendelse for å skjule fullskjermknappen når vi går i fullskjerm
-      document.addEventListener("fullscreenchange", (event) => {
-        toggleFullscreenButton();
-      });
-      document.addEventListener("webkitfullscreenchange", (event) => {
-        toggleFullscreenButton();
-      });
-      document.addEventListener("mozfullscreenchange", (event) => {
-        toggleFullscreenButton();
-      });
-      document.addEventListener("msfullscreenchange", (event) => {
-        toggleFullscreenButton();
-      });
-
-      function toggleFullscreenButton() {
-        if (
-          document.fullscreenElement ||
-          document.webkitFullscreenElement ||
-          document.mozFullScreenElement ||
-          document.msFullscreenElement
-        ) {
-          document.getElementById("fullscreenButton").style.display = "none";
-        } else {
-          document.getElementById("fullscreenButton").style.display = "block";
-        }
       }
     </script>
   </body>
