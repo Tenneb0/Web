@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Emrik Image Movement</title>
+    <title>Gyroscope Image Movement</title>
     <style>
       body {
         display: flex;
@@ -20,30 +20,30 @@
     </style>
   </head>
   <body>
-    <img src="N.jpg" alt="Moving Image" id="movingImage" />
+    <img
+      src="https://via.placeholder.com/150"
+      alt="Placeholder Image"
+      id="movingImage"
+    />
     <script>
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientation", function (event) {
-          // Beta verdien (rotasjon rundt x-aksen)
-          var beta = event.beta;
+      window.addEventListener("deviceorientation", handleOrientation);
 
-          // Finn bildet
-          var img = document.getElementById("movingImage");
+      function handleOrientation(event) {
+        const alpha = event.alpha;
+        const beta = event.beta;
+        const gamma = event.gamma;
 
-          // Beregn ny toppposisjon
-          var newTop = window.innerHeight / 2 + beta * 2;
+        // Finn bildet
+        const img = document.getElementById("movingImage");
 
-          // Begrens posisjonen innenfor vinduets høyde
-          newTop = Math.max(
-            0,
-            Math.min(window.innerHeight - img.height, newTop)
-          );
+        // Beregn ny toppposisjon basert på beta verdien (rotasjon rundt x-aksen)
+        let newTop = window.innerHeight / 2 + beta * 2;
 
-          // Oppdater toppposisjonen til bildet
-          img.style.top = newTop + "px";
-        });
-      } else {
-        alert("Enheten din støtter ikke gyroskopfunksjoner.");
+        // Begrens posisjonen innenfor vinduets høyde
+        newTop = Math.max(0, Math.min(window.innerHeight - img.height, newTop));
+
+        // Oppdater toppposisjonen til bildet
+        img.style.top = newTop + "px";
       }
     </script>
   </body>
