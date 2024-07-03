@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gyroscope Image Movement</title>
+    <title>Gyroscope Movement</title>
     <style>
       body {
         display: flex;
@@ -13,37 +13,58 @@
         margin: 0;
         overflow: hidden;
       }
-      img {
+      #movingBox {
+        width: 150px;
+        height: 150px;
+        background-color: red;
         position: absolute;
         transition: top 0.1s;
+      }
+      button {
+        position: fixed;
+        top: 20px;
       }
     </style>
   </head>
   <body>
-    <img
-      src="https://via.placeholder.com/150"
-      alt="Placeholder Image"
-      id="movingImage"
-    />
+    <button onclick="onClick()">Be om tillatelse</button>
+    <div id="movingBox"></div>
     <script>
-      window.addEventListener("deviceorientation", handleOrientation);
+      function onClick() {
+        if (typeof DeviceMotionEvent.requestPermission === "function") {
+          // Handle iOS 13+ devices.
+          DeviceMotionEvent.requestPermission()
+            .then((state) => {
+              if (state === "granted") {
+                window.addEventListener("deviceorientation", handleOrientation);
+              } else {
+                console.error("Request to access the orientation was rejected");
+              }
+            })
+            .catch(console.error);
+        } else {
+          // Handle regular non iOS 13+ devices.
+          window.addEventListener("deviceorientation", handleOrientation);
+        }
+      }
 
       function handleOrientation(event) {
-        const alpha = event.alpha;
         const beta = event.beta;
-        const gamma = event.gamma;
 
-        // Finn bildet
-        const img = document.getElementById("movingImage");
+        // Finn firkanten
+        const box = document.getElementById("movingBox");
 
-        // Beregn ny toppposisjon basert på beta verdien (rotasjon rundt x-aksen)
+        // Beregn ny topp posisjon basert på beta verdien (rotasjon rundt x-aksen)
         let newTop = window.innerHeight / 2 + beta * 2;
 
         // Begrens posisjonen innenfor vinduets høyde
-        newTop = Math.max(0, Math.min(window.innerHeight - img.height, newTop));
+        newTop = Math.max(
+          0,
+          Math.min(window.innerHeight - box.clientHeight, newTop)
+        );
 
-        // Oppdater toppposisjonen til bildet
-        img.style.top = newTop + "px";
+        // Oppdater topp posisjon til firkanten
+        box.style.top = newTop + "px";
       }
     </script>
   </body>
