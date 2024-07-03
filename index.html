@@ -18,16 +18,24 @@
         height: 150px;
         background-color: red;
         position: absolute;
+        top: 100px;
+        right: 50px;
         transition: top 0.1s;
       }
       button {
         position: fixed;
         top: 20px;
       }
+
+      .app {
+        position: fixed;
+        top: 50px;
+      }
     </style>
   </head>
   <body>
     <button onclick="onClick()">Be om tillatelse</button>
+    <img src="app.png" alt="app" class="app" />
     <div id="movingBox"></div>
     <script>
       function onClick() {
