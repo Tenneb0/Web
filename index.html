@@ -14,10 +14,11 @@
         overflow: hidden;
       }
       #movingBox {
+        z-index: 10;
         position: fixed;
         transition: top 0.1s;
         top: 50px;
-        right: 50px;
+        right: 60px;
       }
       button {
         position: fixed;
@@ -25,6 +26,7 @@
       }
 
       .app {
+        z-index: 5;
         position: fixed;
         top: 40px;
         scale: 50%;
