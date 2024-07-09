@@ -14,11 +14,10 @@
         overflow: hidden;
       }
       #movingBox {
-        width: 150px;
-        height: 150px;
-        background-color: red;
-        position: absolute;
+        position: fixed;
         transition: top 0.1s;
+        top: 50px;
+        right: 50px;
       }
       button {
         position: fixed;
@@ -63,7 +62,7 @@
         const box = document.getElementById("movingBox");
 
         // Beregn ny topp posisjon basert på beta verdien (rotasjon rundt x-aksen)
-        let newTop = window.innerHeight / 2 + beta * 2;
+        let newTop = window.innerHeight / 4.4 + beta * 2;
 
         // Begrens posisjonen innenfor vinduets høyde
         newTop = Math.max(
