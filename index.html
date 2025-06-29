@@ -1,80 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gyroscope Movement</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        overflow: hidden;
-      }
-      #movingBox {
-        z-index: 10;
-        position: fixed;
-        transition: top 0.1s;
-        top: 50px;
-        right: 60px;
-      }
-      button {
-        position: fixed;
-        top: 20px;
-      }
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bil‑kart (kompakt)</title>
+  <style>
+    html,body{margin:0;height:100%;overflow:hidden;font-family:system-ui,sans-serif;background:#f9f9f9}
+    #viewport{width:100%;height:100%;position:relative;cursor:grab}
+    #map-content{position:absolute;top:0;left:0;transform-origin:0 0}
+    .circle{position:absolute;width:700px;height:700px;border-radius:50%;opacity:.25}
+    .circle .label{position:absolute;font-weight:700;font-size:2rem;pointer-events:none}
+    .fin {background:#4caf50;left:120px;top:220px}.digg{background:#ff9800;left:500px;top:220px}.pen{background:#2196f3;left:340px;top:580px}.stygg{background:#f44336;left:340px;top:-240px}
+    .fin  .label{top:50%;left:-14px;transform:translate(-100%,-50%)}
+    .digg .label{top:50%;left:714px;transform:translate(0,-50%)}
+    .pen  .label{top:714px;left:50%;transform:translate(-50%,0)}
+    .stygg .label{top:-14px;left:50%;transform:translate(-50%,-100%)}
+    .car{position:absolute;width:26px;height:26px;border-radius:50%;background:#666 center/cover no-repeat;cursor:grab}
+    .fab{position:fixed;width:60px;height:60px;border-radius:50%;font-size:2rem;line-height:60px;color:#fff;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.25);cursor:pointer;z-index:1000}
+    #add-btn{right:24px;bottom:24px;background:#2196f3}
+    #save-btn{right:24px;bottom:96px;background:#4caf50;font-size:1.4rem}
+    #reset-btn{right:24px;bottom:168px;background:#9e9e9e;font-size:1.6rem}
+    #modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);visibility:hidden;z-index:1100}
+    #modal.show{visibility:visible}
+    #modal-content{background:#fff;border-radius:8px;width:420px;padding:1rem;max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:.8rem}
+    #tabs{display:flex}
+    #tabs button{flex:1;padding:.5rem;border:none;border-bottom:3px solid transparent;background:#e0e0e0;font-weight:600;cursor:pointer}
+    #tabs .active{border-color:#2196f3;background:#fff}
+    #search-db{width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem}
+    #db-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem;max-height:50vh;overflow:auto}
+    .db-item{display:flex;align-items:center;gap:.4rem;padding:.4rem;border-radius:6px;background:#f4f4f4;border:2px solid transparent;cursor:pointer}
+    .db-item.selected{border-color:#2196f3;background:#e8f4ff}
+    .db-item img{width:48px;height:48px;border-radius:4px;object-fit:cover}
+    #new-section{display:none;flex-direction:column;gap:.5rem}
+    #info{position:fixed;left:24px;bottom:24px;width:300px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.25);display:none;flex-direction:column;z-index:1050}
+    #slide-wrapper{position:relative;width:100%;aspect-ratio:1/1}
+    #slide-wrapper img{width:100%;height:100%;object-fit:cover}
+    .nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1.6rem;display:none;align-items:center;justify-content:center}
+    #slide-wrapper:hover .nav-btn{display:flex}
+    #prev-slide{left:6px}#next-slide{right:6px}
+  </style>
+</head>
+<body>
+  <!-- KART -->
+  <div id="viewport"><div id="map-content">
+    <div class="circle fin"><span class="label">Fin</span></div>
+    <div class="circle digg"><span class="label">Digg</span></div>
+    <div class="circle pen"><span class="label">Pen</span></div>
+    <div class="circle stygg"><span class="label">Stygg</span></div>
+  </div></div>
 
-      .app {
-        z-index: 5;
-        position: fixed;
-        top: 40px;
-        scale: 50%;
-      }
-    </style>
-  </head>
-  <body>
-    <button onclick="onClick()">Be om tillatelse</button>
-    <div id="movingBox"><img src="N_ferdig.png" alt="N" /></div>
+  <!-- FABs -->
+  <div id="add-btn" class="fab">＋</div>
+  <div id="save-btn" class="fab">💾</div>
+  <div id="reset-btn" class="fab">↺</div>
 
-    <img src="app.png" alt="app" class="app" />
-    <script>
-      function onClick() {
-        if (typeof DeviceMotionEvent.requestPermission === "function") {
-          // Handle iOS 13+ devices.
-          DeviceMotionEvent.requestPermission()
-            .then((state) => {
-              if (state === "granted") {
-                window.addEventListener("deviceorientation", handleOrientation);
-              } else {
-                console.error("Request to access the orientation was rejected");
-              }
-            })
-            .catch(console.error);
-        } else {
-          // Handle regular non iOS 13+ devices.
-          window.addEventListener("deviceorientation", handleOrientation);
+  <!-- MODAL -->
+  <div id="modal"><div id="modal-content">
+    <h3>Legg til bil</h3>
+    <div id="tabs"><button id="tab-db" class="active">Fra database</button><button id="tab-new">Ny</button></div>
+    <div id="db-section"><input id="search-db" placeholder="Søk…"><div id="db-list"></div></div>
+    <div id="new-section"><input type="file" id="car-images" multiple><input id="car-name" placeholder="Navn"><textarea id="car-desc" rows="2" placeholder="Beskrivelse"></textarea></div>
+    <div style="display:flex;gap:.4rem;justify-content:flex-end"><button id="cancel-btn">Avbryt</button><button id="add-car-btn">Legg til</button></div>
+  </div></div>
+
+  <!-- INFO -->
+  <div id="info"><div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 1rem"><h3 id="info-name" style="margin:0;font-size:1rem"></h3><div><button id="delete-car" style="border:none;background:none;font-size:1.2rem">🗑</button><button id="close-info" style="border:none;background:none;font-size:1.2rem">✖</button></div></div><div id="slide-wrapper"><img id="info-img"><button id="prev-slide" class="nav-btn">‹</button><button id="next-slide" class="nav-btn">›</button></div><p id="info-desc" style="padding:0 1rem 1rem;margin:0;font-size:.85rem"></p></div>
+
+  <script src="cars.js"></script>
+  <script>
+    (()=>{
+      const STO='carMap', db=[...(window.dbCars||[])].sort((a,b)=>a.name.localeCompare(b.name,'no',{sensitivity:'base'}));
+      const $=id=>document.getElementById(id);
+
+      /* --- DOM refs --- */
+      const vp=$('viewport'), map=$('map-content');
+      const addBtn=$('add-btn'), saveBtn=$('save-btn'), resetBtn=$('reset-btn');
+      const modal=$('modal'), tabDb=$('tab-db'), tabNew=$('tab-new');
+      const dbList=$('db-list'), searchIn=$('search-db');
+      const imgIn=$('car-images'), nameIn=$('car-name'), descIn=$('car-desc');
+      const addCar=$('add-car-btn'), cancel=$('cancel-btn');
+      const info=$('info'), iImg=$('info-img'), iName=$('info-name'), iDesc=$('info-desc');
+      const prev=$('prev-slide'), next=$('next-slide'), closeI=$('close-info'), del=$('delete-car');
+
+      /* --- pan & zoom --- */
+      let scale=1, tr={x:0,y:0}, panning=false, start={};
+      const update=()=>map.style.transform=`translate(${tr.x}px,${tr.y}px) scale(${scale})`;
+      vp.onwheel=e=>{e.preventDefault(); const ns=scale*(1-e.deltaY*0.001); if(ns<.0001||ns>300) return; const r=vp.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top; tr.x=mx-(mx-tr.x)*(ns/scale); tr.y=my-(my-tr.y)*(ns/scale); scale=ns; update();};
+      vp.onmousedown=e=>{if(e.target.classList.contains('car')) return; panning=true; start={x:e.clientX-tr.x, y:e.clientY-tr.y}; vp.style.cursor='grabbing'};
+      window.onmousemove=e=>{if(panning){ tr.x=e.clientX-start.x; tr.y=e.clientY-start.y; update(); }};
+      window.onmouseup=()=>{panning=false; vp.style.cursor='grab'};
+
+      /* --- cars --- */
+      function makeCar(obj,x=350,y=350){ const imgs=obj.imgs||[obj.img]; if(!imgs.length) return; const el=document.createElement('div'); el.className='car'; el.style.cssText=`left:${x}px;top:${y}px;background-image:url(${imgs[0]})`; el.dataset.name=obj.name; el.dataset.imgs=JSON.stringify(imgs.slice(0,8)); el.dataset.desc=obj.desc||''; map.appendChild(el); drag(el); bindInfo(el);}      
+      function drag(el){ let drag=false, ofs={}; el.onmousedown=e=>{drag=true; el.style.cursor='grabbing'; e.stopPropagation(); const r=el.getBoundingClientRect(); ofs={x:e.clientX-r.left,y:e.clientY-r.top}; }; window.addEventListener('mousemove',e=>{ if(drag){ const r=vp.getBoundingClientRect(); el.style.left=(e.clientX-r.left-ofs.x-tr.x)/scale+'px'; el.style.top=(e.clientY-r.top-ofs.y-tr.y)/scale+'px'; }}); window.addEventListener('mouseup',()=>{ if(drag){ drag=false; el.style.cursor='grab'; save(); }}); el.oncontextmenu=e=>{e.preventDefault(); remove(el);} }
+
+      /* --- info --- */
+      let slides=[], idx=0, current=null;
+      function show(i){ idx=(i+slides.length)%slides.length; iImg.src=slides[idx]; }
+      function bindInfo(el){ el.onclick=e=>{ e.stopPropagation(); current=el; iName.textContent=el.dataset.name; iDesc.textContent=el.dataset.desc; slides=JSON.parse(el.dataset.imgs); show(0); prev.style.display=next.style.display=slides.length>1?'flex':'none'; info.style.display='flex'; }; }
+      prev.onclick=()=>show(idx-1); next.onclick=()=>show(idx+1); closeI.onclick=vp.onclick=()=>info.style.display='none'; del.onclick=()=>current&&remove(current);
+      function remove(el){ if(confirm('Slett bilen?')){ el.remove(); info.style.display='none'; save(); } }
+
+      /* --- storage --- */
+      const save=()=>localStorage.setItem(STO,JSON.stringify([...document.querySelectorAll('.car')].map(c=>({name:c.dataset.name,imgs:JSON.parse(c.dataset.imgs),desc:c.dataset.desc,x:+c.style.left.replace('px',''),y:+c.style.top.replace('px','')}))));
+      const load=()=>{ const raw=localStorage.getItem(STO); if(raw) JSON.parse(raw).forEach(d=>makeCar(d,d.x,d.y)); };
+
+      /* --- modal & database --- */
+      function switchTab(t){ const ds=document.getElementById('db-section'), nw=document.getElementById('new-section'); if(t==='db'){ tabDb.classList.add('active'); tabNew.classList.remove('active'); ds.style.display='block'; nw.style.display='none'; } else { tabNew.classList.add('active'); tabDb.classList.remove('active'); ds.style.display='none'; nw.style.display='flex'; }}
+      tabDb.onclick=()=>switchTab('db'); tabNew.onclick=()=>switchTab('new');
+
+      let selected=new Set(), query='';
+      searchIn.oninput=()=>{ query=searchIn.value.toLowerCase(); renderDB(); };
+      function renderDB(){ dbList.innerHTML=''; db.forEach((c,i)=>{ if(query && !c.name.toLowerCase().includes(query)) return; const item=document.createElement('div'); item.className='db-item'+(selected.has(i)?' selected':''); item.innerHTML=`<img src="${(c.imgs?c.imgs[0]:c.img)}"><span>${c.name}</span>`; item.onclick=e=>{ if(e.shiftKey){ selected.has(i)?selected.delete(i):selected.add(i);} else { selected=new Set([i]); } renderDB(); }; dbList.appendChild(item); }); }
+      renderDB();
+
+      /* --- buttons --- */
+      addBtn.onclick=()=>{ modal.classList.add('show'); switchTab('db'); searchIn.value=''; query=''; renderDB(); };
+      cancel.onclick=()=>{ modal.classList.remove('show'); selected.clear(); };
+      addCar.onclick=()=>{
+        if(tabDb.classList.contains('active')){
+          if(selected.size===0){ alert('Velg minst én'); return; }
+          selected.forEach(i=>makeCar(db[i]));
+          selected.clear(); renderDB(); modal.classList.remove('show'); save(); return;
         }
-      }
+        if(!nameIn.value.trim()){ alert('Navn mangler'); return; }
+        const files=[...imgIn.files].slice(0,8); if(!files.length){ alert('Velg bilde'); return; }
+        makeCar({name:nameIn.value,imgs:files.map(f=>URL.createObjectURL(f)),desc:descIn.value});
+        imgIn.value=''; nameIn.value=''; descIn.value=''; modal.classList.remove('show'); save();
+      };
+      resetBtn.onclick=()=>{ document.querySelectorAll('.car').forEach(c=>{ c.style.left='350px'; c.style.top='350px'; }); save(); };
+      saveBtn.onclick=()=>{ save(); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([localStorage.getItem(STO)],{type:'application/json'})); a.download='bilkart.json'; a.click(); };
+      window.onclick=e=>{ if(e.target===modal) modal.classList.remove('show'); };
 
-      function handleOrientation(event) {
-        const beta = event.beta;
-
-        // Finn firkanten
-        const box = document.getElementById("movingBox");
-
-        // Beregn ny topp posisjon basert på beta verdien (rotasjon rundt x-aksen)
-        let newTop = window.innerHeight / 4.4 + beta * 2.5;
-
-        // Begrens posisjonen innenfor vinduets høyde
-        newTop = Math.max(
-          0,
-          Math.min(window.innerHeight - box.clientHeight, newTop)
-        );
-
-        // Oppdater topp posisjon til firkanten
-        box.style.top = newTop + "px";
-      }
-    </script>
-  </body>
+      load();
+    })();
+  </script>
+</body>
 </html>
