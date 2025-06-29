@@ -128,7 +128,13 @@
         makeCar({name:nameIn.value,imgs:files.map(f=>URL.createObjectURL(f)),desc:descIn.value});
         imgIn.value=''; nameIn.value=''; descIn.value=''; modal.classList.remove('show'); save();
       };
-      resetBtn.onclick=()=>{ document.querySelectorAll('.car').forEach(c=>{ c.style.left='350px'; c.style.top='350px'; }); save(); };
+      resetBtn.onclick=()=>{
+        if(confirm('Tilbakestill kartet?')){
+          document.querySelectorAll('.car').forEach(c=>c.remove());
+          localStorage.removeItem(STO);
+          scale=1; tr={x:0,y:0}; update();
+        }
+      };
       saveBtn.onclick=()=>{ save(); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([localStorage.getItem(STO)],{type:'application/json'})); a.download='bilkart.json'; a.click(); };
       window.onclick=e=>{ if(e.target===modal) modal.classList.remove('show'); };
 
